@@ -1,0 +1,28 @@
+name: RingCentral TOP10 Calls
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run Report
+        env:
+          RINGCENTRAL_CLIENT_ID: ${{ secrets.RINGCENTRAL_CLIENT_ID }}
+          RINGCENTRAL_CLIENT_SECRET: ${{ secrets.RINGCENTRAL_CLIENT_SECRET }}
+          RINGCENTRAL_JWT: ${{ secrets.RINGCENTRAL_JWT }}
+          RINGCENTRAL_CHAT_ID: ${{ secrets.RINGCENTRAL_CHAT_ID }}
+        run: python main.py
