@@ -293,15 +293,6 @@ for pos, (ext_id, datos) in enumerate(
     if minutos > mayor_talktime["valor"]:
         mayor_talktime["valor"] = minutos
         mayor_talktime["nombre"] = nombre
-    if pos == 1:
-        mensaje += (
-            "👑 CAMPEÓN DEL DÍA\n\n"
-            f"{nombre}\n"
-            f"📞 {datos['total']} llamadas\n"
-            f"✅ {datos['connected']} conectadas\n"
-            f"📲 {efectividad:.1f}% Contact Rate Outbound\n"
-            f"🕒 {minutos} min hablados\n\n"
-        )
     mensaje += (
             f"#{pos} {nombre}\n"
             f"🏢 {departamento}\n"
@@ -359,7 +350,6 @@ mensaje += (
     f"➡️ Outbound: {global_outbound}\n"
     f"✅ Connected: {global_connected}\n"
     f"📲 Contact Rate Outbound Global: {outbound_contact_rate:.1f}%\n"
-    f"🎯 Contact Rate: {contact_rate:.1f}%\n"
     f"🕒 Talk Time: {horas_globales} hrs\n"
 )
 print(mensaje)
