@@ -300,6 +300,16 @@ global_outbound = sum(
 
 mensaje = "🏆 TOP 10 LLAMADAS - AYER\n\n"
 
+mejor_efectividad = {
+    "nombre": "",
+    "valor": 0
+}
+
+mayor_talktime = {
+    "nombre": "",
+    "valor": 0
+}
+
 for pos, (ext_id, datos) in enumerate(
     top10,
     start=1
@@ -314,7 +324,7 @@ for pos, (ext_id, datos) in enumerate(
         "nombre",
         ext_id
     )
-    
+
     departamento = usuario.get(
         "departamento",
         "Sin departamento"
@@ -338,23 +348,45 @@ for pos, (ext_id, datos) in enumerate(
         1
     )
 
+    if efectividad > mejor_efectividad["valor"]:
+        mejor_efectividad["valor"] = efectividad
+        mejor_efectividad["nombre"] = nombre
+
+    if minutos > mayor_talktime["valor"]:
+        mayor_talktime["valor"] = minutos
+        mayor_talktime["nombre"] = nombre
+
     if pos == 1:
-        mensaje += "👑 CAMPEÓN DEL DÍA\n"
+
+        mensaje += (
+            "👑 CAMPEÓN DEL DÍA\n\n"
+            f"{nombre}\n"
+            f"📞 {datos['total']} llamadas\n"
+            f"✅ {datos['connected']} conectadas\n"
+            f"🎯 {efectividad:.1f}% efectividad\n"
+            f"🕒 {minutos} min hablados\n\n"
+        )
 
     mensaje += (
-        f"\n#{pos} {nombre}\n"
+        f"#{pos} {nombre}\n"
         f"🏢 {departamento}\n"
         f"📍 {sitio}\n"
         f"📞 Total: {datos['total']}\n"
-        f"⬅️ Inbound: {datos['inbound']}\n"
-        f"➡️ Outbound: {datos['outbound']}\n"
         f"✅ Connected: {datos['connected']}\n"
-        f"📴 Busy: {datos['busy']}\n"
-        f"⏳ No Answer: {datos['no_answer']}\n"
         f"🕒 Talk Time: {minutos} min\n"
-        f"🎯 Efectividad: {efectividad:.1f}%\n"
+        f"🎯 Efectividad: {efectividad:.1f}%\n\n"
     )
 
+mensaje += (
+    "\n════════════════════\n"
+    "🥇 RECONOCIMIENTOS DEL DÍA\n\n"
+    f"📞 Mayor volumen: {top10[0][1]['total']} llamadas\n"
+    f"👤 {ext_info.get(top10[0][0], {}).get('nombre', top10[0][0])}\n\n"
+    f"🕒 Mayor Talk Time: {mayor_talktime['valor']} min\n"
+    f"👤 {mayor_talktime['nombre']}\n\n"
+    f"🎯 Mejor efectividad: {mejor_efectividad['valor']:.1f}%\n"
+    f"👤 {mejor_efectividad['nombre']}\n"
+)
 # ====================================
 # RESUMEN GLOBAL
 # ====================================
