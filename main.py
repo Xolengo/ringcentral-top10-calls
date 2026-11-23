@@ -208,6 +208,9 @@ ranking = defaultdict(
         "connected": 0,
         "busy": 0,
         "no_answer": 0,
+        "hang_up": 0,
+        "wrong_number": 0,
+        "call_failed": 0,
         "duration": 0,
         "inbound": 0,
         "outbound": 0
@@ -237,6 +240,14 @@ for call in calls:
         "direction",
         ""
     )
+    
+    if direccion not in [
+        "Inbound",
+        "Outbound"
+    ]:
+        print(
+            f"DIRECCION DESCONOCIDA: {direccion}"
+        )
 
     ranking[ext_id]["total"] += 1
 
@@ -253,12 +264,24 @@ for call in calls:
 
     if resultado == "Call connected":
         ranking[ext_id]["connected"] += 1
-
+    
     elif resultado == "Busy":
         ranking[ext_id]["busy"] += 1
-
+    
     elif resultado == "No Answer":
         ranking[ext_id]["no_answer"] += 1
+    
+    elif resultado == "Hang Up":
+        ranking[ext_id]["hang_up"] += 1
+    
+    elif resultado == "Wrong Number":
+        ranking[ext_id]["wrong_number"] += 1
+    
+    elif resultado in [
+        "Call Failed",
+        "Call Failure"
+    ]:
+        ranking[ext_id]["call_failed"] += 1
 
 # ====================================
 # TOP 10
@@ -367,15 +390,22 @@ for pos, (ext_id, datos) in enumerate(
             f"🕒 {minutos} min hablados\n\n"
         )
 
-    mensaje += (
-        f"#{pos} {nombre}\n"
-        f"🏢 {departamento}\n"
-        f"📍 {sitio}\n"
-        f"📞 Total: {datos['total']}\n"
-        f"✅ Connected: {datos['connected']}\n"
-        f"🕒 Talk Time: {minutos} min\n"
-        f"🎯 Efectividad: {efectividad:.1f}%\n\n"
-    )
+        mensaje += (
+            f"#{pos} {nombre}\n"
+            f"🏢 {departamento}\n"
+            f"📍 {sitio}\n"
+            f"📞 Total: {datos['total']}\n"
+            f"⬅️ Inbound: {datos['inbound']}\n"
+            f"➡️ Outbound: {datos['outbound']}\n"
+            f"✅ Connected: {datos['connected']}\n"
+            f"📴 Busy: {datos['busy']}\n"
+            f"⏳ No Answer: {datos['no_answer']}\n"
+            f"☎️ Hang Up: {datos['hang_up']}\n"
+            f"❌ Wrong Number: {datos['wrong_number']}\n"
+            f"🚨 Call Failed: {datos['call_failed']}\n"
+            f"🕒 Talk Time: {minutos} min\n"
+            f"🎯 Efectividad: {efectividad:.1f}%\n\n"
+        )
 
 mensaje += (
     "\n════════════════════\n"
