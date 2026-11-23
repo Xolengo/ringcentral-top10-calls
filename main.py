@@ -217,6 +217,9 @@ ranking = defaultdict(
     }
 )
 
+global_inbound = 0
+global_outbound = 0
+
 for call in calls:
 
     ext_id = call.get(
@@ -228,13 +231,13 @@ for call in calls:
 
     if not ext_id:
     
-        print(
-            "SIN EXTENSION",
-            call.get("direction"),
-            call.get("result"),
-            call.get("from", {}).get("phoneNumber"),
-            call.get("to", {}).get("phoneNumber")
-        )
+        direccion = call.get("direction", "")
+    
+        if direccion == "Inbound":
+            global_inbound += 1
+    
+        elif direccion == "Outbound":
+            global_outbound += 1
     
         continue
 
@@ -315,17 +318,6 @@ global_duration = sum(
     x["duration"]
     for x in ranking.values()
 )
-
-global_inbound = sum(
-    x["inbound"]
-    for x in ranking.values()
-)
-
-global_outbound = sum(
-    x["outbound"]
-    for x in ranking.values()
-)
-
 # ====================================
 # MENSAJE
 # ====================================
