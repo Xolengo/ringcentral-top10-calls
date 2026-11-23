@@ -314,10 +314,6 @@ for pos, (ext_id, datos) in enumerate(
         "nombre",
         ext_id
     )
-    if nombre == ext_id:
-    print(
-        f"NO SE ENCONTRO EXTENSION: {ext_id}"
-    )
     
     departamento = usuario.get(
         "departamento",
