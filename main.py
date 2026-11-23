@@ -236,6 +236,10 @@ global_duration = sum(
     for x in ranking.values()
 )
 agentes_activos = len(ranking)
+promedio_outbound = round(
+    global_outbound / agentes_activos,
+    1
+) if agentes_activos > 0 else 0
 promedio_llamadas = round(
     len(calls) / agentes_activos,
     1
@@ -334,6 +338,13 @@ contact_rate = (
     if len(calls) > 0
     else 0
 )
+outbound_contact_rate = (
+    global_connected
+    / global_outbound
+    * 100
+    if global_outbound > 0
+    else 0
+)
 horas_globales = round(
     global_duration / 3600,
     1
@@ -342,11 +353,12 @@ mensaje += (
     "\n════════════════════\n"
     "📊 RESUMEN TENANT\n\n"
     f"👥 Agentes activos: {agentes_activos}\n"
-    f"📈 Promedio por agente: {promedio_llamadas}\n"
+    f"📞 Outbound por agente: {promedio_outbound}\n"
     f"📞 Total Calls: {len(calls)}\n"
     f"⬅️ Inbound: {global_inbound}\n"
     f"➡️ Outbound: {global_outbound}\n"
     f"✅ Connected: {global_connected}\n"
+    f"📲 Contactabilidad Outbound: {outbound_contact_rate:.1f}%\n"
     f"🎯 Contact Rate: {contact_rate:.1f}%\n"
     f"🕒 Talk Time: {horas_globales} hrs\n"
 )
