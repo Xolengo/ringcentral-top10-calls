@@ -227,6 +227,15 @@ for call in calls:
     )
 
     if not ext_id:
+    
+        print(
+            "SIN EXTENSION",
+            call.get("direction"),
+            call.get("result"),
+            call.get("from", {}).get("phoneNumber"),
+            call.get("to", {}).get("phoneNumber")
+        )
+    
         continue
 
     ext_id = str(ext_id)
