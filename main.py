@@ -234,9 +234,11 @@ for call in calls:
         direccion = call.get("direction", "")
     
         if direccion == "Inbound":
+            ranking[ext_id]["inbound"] += 1
             global_inbound += 1
-    
+        
         elif direccion == "Outbound":
+            ranking[ext_id]["outbound"] += 1
             global_outbound += 1
     
         continue
