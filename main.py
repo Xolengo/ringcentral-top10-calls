@@ -1,6 +1,5 @@
 import os
 import requests
-
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from collections import defaultdict
@@ -9,11 +8,9 @@ CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 JWT = os.getenv("RINGCENTRAL_JWT")
 CHAT_ID = os.getenv("RINGCENTRAL_CHAT_ID")
-
 # ====================================
 # AUTH
 # ====================================
-
 response = requests.post(
     "https://platform.ringcentral.com/restapi/oauth/token",
     auth=(CLIENT_ID, CLIENT_SECRET),
@@ -25,21 +22,14 @@ response = requests.post(
         "assertion": JWT
     }
 )
-
 response.raise_for_status()
-
 access_token = response.json()["access_token"]
-
 print("TOKEN OK")
-
 # ====================================
 # FECHAS AYER
 # ====================================
-
 tz = ZoneInfo("America/Mexico_City")
-
 hoy = datetime.now(tz)
-
 ayer_inicio = (
     hoy - timedelta(days=1)
 ).replace(
@@ -48,27 +38,19 @@ ayer_inicio = (
     second=0,
     microsecond=0
 )
-
 ayer_fin = ayer_inicio + timedelta(days=1)
-
 print(
     f"Consultando desde {ayer_inicio.isoformat()}"
 )
-
 print(
     f"Consultando hasta {ayer_fin.isoformat()}"
 )
-
 # ====================================
 # EXTENSIONES (TODAS LAS PAGINAS)
 # ====================================
-
 ext_info = {}
-
 page = 1
-
 while True:
-
     response = requests.get(
         "https://platform.ringcentral.com/restapi/v1.0/account/~/extension",
         headers={
@@ -79,89 +61,66 @@ while True:
             "page": page
         }
     )
-
     response.raise_for_status()
-
     data = response.json()
-
     extensions = data.get(
         "records",
         []
     )
-
     if not extensions:
         break
-
     for ext in extensions:
-
         ext_id = str(ext["id"])
-
         contact = ext.get(
             "contact",
             {}
         )
-
         first_name = contact.get(
             "firstName",
             ""
         ).strip()
-
         last_name = contact.get(
             "lastName",
             ""
         ).strip()
-
         nombre_completo = (
             f"{first_name} {last_name}"
         ).strip()
-
         if not nombre_completo:
-
             nombre_completo = (
                 ext.get("name")
                 or f"Extension {ext_id}"
             )
-
         departamento = (
             contact.get("department")
             or "Sin departamento"
         )
-
         sitio = (
             ext.get("site", {})
             .get("name")
             or "Sin sitio"
         )
-
         ext_info[ext_id] = {
             "nombre": nombre_completo,
             "departamento": departamento,
             "sitio": sitio
         }
-
     print(
         f"Pagina extensiones {page}: {len(extensions)}"
     )
 
     if len(extensions) < 1000:
         break
-
     page += 1
-
 print(
     f"Extensiones totales: {len(ext_info)}"
 )
-
 # ====================================
 # CALL LOG
 # ====================================
-
 calls = []
-
 page = 1
-
 while True:
-
     response = requests.get(
         "https://platform.ringcentral.com/restapi/v1.0/account/~/call-log",
         headers={
@@ -175,33 +134,23 @@ while True:
             "page": page
         }
     )
-
     response.raise_for_status()
-
     data = response.json()
-
     registros = data.get(
         "records",
         []
     )
-
     calls.extend(registros)
-
     print(
         f"Pagina {page}: {len(registros)} llamadas"
     )
-
     if len(registros) < 1000:
         break
-
     page += 1
-
 print(f"Total llamadas: {len(calls)}")
-
 # ====================================
 # KPIS POR USUARIO
 # ====================================
-
 ranking = defaultdict(
     lambda: {
         "total": 0,
@@ -216,106 +165,72 @@ ranking = defaultdict(
         "outbound": 0
     }
 )
-
 global_inbound = 0
 global_outbound = 0
-
 for call in calls:
-
     ext_id = call.get(
         "from",
         {}
     ).get(
         "extensionId"
     )
-
     if not ext_id:
-    
         direccion = call.get("direction", "")
-    
         if direccion == "Inbound":
-            ranking[ext_id]["inbound"] += 1
             global_inbound += 1
-        
         elif direccion == "Outbound":
-            ranking[ext_id]["outbound"] += 1
             global_outbound += 1
-    
         continue
-
     ext_id = str(ext_id)
-
     resultado = call.get(
         "result",
         ""
     )
-
     direccion = call.get(
         "direction",
         ""
     )
-    
-    if direccion not in [
-        "Inbound",
-        "Outbound"
-    ]:
-        print(
-            f"DIRECCION DESCONOCIDA: {direccion}"
-        )
-
     ranking[ext_id]["total"] += 1
-
     ranking[ext_id]["duration"] += call.get(
         "duration",
         0
     )
-
     if direccion == "Inbound":
         ranking[ext_id]["inbound"] += 1
-
+        global_inbound += 1
     elif direccion == "Outbound":
         ranking[ext_id]["outbound"] += 1
-
+        global_outbound += 1
     if resultado == "Call connected":
         ranking[ext_id]["connected"] += 1
-    
     elif resultado == "Busy":
         ranking[ext_id]["busy"] += 1
-    
     elif resultado == "No Answer":
         ranking[ext_id]["no_answer"] += 1
-    
     elif resultado == "Hang Up":
         ranking[ext_id]["hang_up"] += 1
-    
     elif resultado == "Wrong Number":
         ranking[ext_id]["wrong_number"] += 1
-    
     elif resultado in [
         "Call Failed",
         "Call Failure"
     ]:
         ranking[ext_id]["call_failed"] += 1
-
 # ====================================
 # TOP 10
 # ====================================
-
 top10 = sorted(
     ranking.items(),
     key=lambda x: x[1]["total"],
     reverse=True
 )[:10]
-
 # ====================================
 # KPI GLOBAL
 # ====================================
-
 global_connected = sum(
     x["connected"]
     for x in ranking.values()
 )
-
 global_duration = sum(
     x["duration"]
     for x in ranking.values()
@@ -323,44 +238,35 @@ global_duration = sum(
 # ====================================
 # MENSAJE
 # ====================================
-
 mensaje = "🏆 TOP 10 LLAMADAS - AYER\n\n"
-
 mejor_efectividad = {
     "nombre": "",
     "valor": 0
 }
-
 mayor_talktime = {
     "nombre": "",
     "valor": 0
 }
-
 for pos, (ext_id, datos) in enumerate(
     top10,
     start=1
 ):
-
     usuario = ext_info.get(
         ext_id,
         {}
     )
-
     nombre = usuario.get(
         "nombre",
         ext_id
     )
-
     departamento = usuario.get(
         "departamento",
         "Sin departamento"
     )
-
     sitio = usuario.get(
         "sitio",
         "Sin sitio"
     )
-
     efectividad = (
         datos["connected"]
         / datos["total"]
@@ -368,22 +274,17 @@ for pos, (ext_id, datos) in enumerate(
         if datos["total"] > 0
         else 0
     )
-
     minutos = round(
         datos["duration"] / 60,
         1
     )
-
     if efectividad > mejor_efectividad["valor"]:
         mejor_efectividad["valor"] = efectividad
         mejor_efectividad["nombre"] = nombre
-
     if minutos > mayor_talktime["valor"]:
         mayor_talktime["valor"] = minutos
         mayor_talktime["nombre"] = nombre
-
     if pos == 1:
-
         mensaje += (
             "👑 CAMPEÓN DEL DÍA\n\n"
             f"{nombre}\n"
@@ -392,8 +293,7 @@ for pos, (ext_id, datos) in enumerate(
             f"🎯 {efectividad:.1f}% efectividad\n"
             f"🕒 {minutos} min hablados\n\n"
         )
-
-        mensaje += (
+    mensaje += (
             f"#{pos} {nombre}\n"
             f"🏢 {departamento}\n"
             f"📍 {sitio}\n"
@@ -409,7 +309,6 @@ for pos, (ext_id, datos) in enumerate(
             f"🕒 Talk Time: {minutos} min\n"
             f"🎯 Efectividad: {efectividad:.1f}%\n\n"
         )
-
 mensaje += (
     "\n════════════════════\n"
     "🥇 RECONOCIMIENTOS DEL DÍA\n\n"
@@ -423,7 +322,6 @@ mensaje += (
 # ====================================
 # RESUMEN GLOBAL
 # ====================================
-
 contact_rate = (
     global_connected
     / len(calls)
@@ -431,12 +329,10 @@ contact_rate = (
     if len(calls) > 0
     else 0
 )
-
 horas_globales = round(
     global_duration / 3600,
     1
 )
-
 mensaje += (
     "\n════════════════════\n"
     "📊 RESUMEN TENANT\n\n"
@@ -447,13 +343,10 @@ mensaje += (
     f"🎯 Contact Rate: {contact_rate:.1f}%\n"
     f"🕒 Talk Time: {horas_globales} hrs\n"
 )
-
 print(mensaje)
-
 # ====================================
 # ENVIAR CHAT
 # ====================================
-
 response = requests.post(
     f"https://platform.ringcentral.com/restapi/v1.0/glip/chats/{CHAT_ID}/posts",
     headers={
@@ -464,7 +357,5 @@ response = requests.post(
         "text": mensaje
     }
 )
-
 response.raise_for_status()
-
 print("TOP10 ENVIADO")
