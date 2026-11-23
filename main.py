@@ -162,7 +162,7 @@ ranking = defaultdict(
         "call_failed": 0,
         "duration": 0,
         "inbound": 0,
-        "outbound": 0
+        "outbound": 0,
         "effective_contacts": 0
     }
 )
