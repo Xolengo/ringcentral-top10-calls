@@ -163,6 +163,7 @@ ranking = defaultdict(
         "duration": 0,
         "inbound": 0,
         "outbound": 0
+        "effective_contacts": 0
     }
 )
 global_inbound = 0
@@ -203,6 +204,7 @@ for call in calls:
         global_outbound += 1
     if resultado == "Call connected":
         ranking[ext_id]["connected"] += 1
+        ranking[ext_id]["effective_contacts"] += 1
     elif resultado == "Busy":
         ranking[ext_id]["busy"] += 1
     elif resultado == "No Answer":
@@ -309,11 +311,15 @@ for pos, (ext_id, datos) in enumerate(
             f"🕒 Talk Time: {minutos} min\n"
             f"📲 Contact Rate Outbound: {efectividad:.1f}%\n\n"
         )
+mejor_actividad = max(
+    ranking.items(),
+    key=lambda x: x[1]["effective_contacts"]
+)
 mensaje += (
     "\n════════════════════\n"
     "🥇 RECONOCIMIENTOS DEL DÍA\n\n"
-    f"📞 Mayor volumen: {top10[0][1]['total']} llamadas\n"
-    f"👤 {ext_info.get(top10[0][0], {}).get('nombre', top10[0][0])}\n\n"
+    f"🏆 Mayor actividad efectiva (Inbound/Outbound): {mejor_actividad[1]['effective_contacts']}\n"
+    f"👤 {ext_info.get(mejor_actividad[0], {}).get('nombre', mejor_actividad[0])}\n\n"
     f"🕒 Mayor Talk Time: {mayor_talktime['valor']} min\n"
     f"👤 {mayor_talktime['nombre']}\n\n"
     f"📲 Mejor Contact Rate Outbound: {mejor_efectividad['valor']:.1f}%\n"
