@@ -235,6 +235,11 @@ global_duration = sum(
     x["duration"]
     for x in ranking.values()
 )
+agentes_activos = len(ranking)
+promedio_llamadas = round(
+    len(calls) / agentes_activos,
+    1
+) if agentes_activos > 0 else 0
 # ====================================
 # MENSAJE
 # ====================================
@@ -336,6 +341,8 @@ horas_globales = round(
 mensaje += (
     "\n════════════════════\n"
     "📊 RESUMEN TENANT\n\n"
+    f"👥 Agentes activos: {agentes_activos}\n"
+    f"📈 Promedio por agente: {promedio_llamadas}\n"
     f"📞 Total Calls: {len(calls)}\n"
     f"⬅️ Inbound: {global_inbound}\n"
     f"➡️ Outbound: {global_outbound}\n"
