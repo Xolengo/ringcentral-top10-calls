@@ -299,7 +299,7 @@ for pos, (ext_id, datos) in enumerate(
             f"{nombre}\n"
             f"📞 {datos['total']} llamadas\n"
             f"✅ {datos['connected']} conectadas\n"
-            f"🎯 {efectividad:.1f}% efectividad\n"
+            f"📲 {efectividad:.1f}% Contact Rate Outbound\n"
             f"🕒 {minutos} min hablados\n\n"
         )
     mensaje += (
@@ -316,7 +316,7 @@ for pos, (ext_id, datos) in enumerate(
             f"❌ Wrong Number: {datos['wrong_number']}\n"
             f"🚨 Call Failed: {datos['call_failed']}\n"
             f"🕒 Talk Time: {minutos} min\n"
-            f"🎯 Efectividad: {efectividad:.1f}%\n\n"
+            f"📲 Contact Rate Outbound: {efectividad:.1f}%\n\n"
         )
 mensaje += (
     "\n════════════════════\n"
@@ -325,7 +325,7 @@ mensaje += (
     f"👤 {ext_info.get(top10[0][0], {}).get('nombre', top10[0][0])}\n\n"
     f"🕒 Mayor Talk Time: {mayor_talktime['valor']} min\n"
     f"👤 {mayor_talktime['nombre']}\n\n"
-    f"🎯 Mejor efectividad: {mejor_efectividad['valor']:.1f}%\n"
+    f"📲 Mejor Contact Rate Outbound: {mejor_efectividad['valor']:.1f}%\n"
     f"👤 {mejor_efectividad['nombre']}\n"
 )
 # ====================================
@@ -358,7 +358,7 @@ mensaje += (
     f"⬅️ Inbound: {global_inbound}\n"
     f"➡️ Outbound: {global_outbound}\n"
     f"✅ Connected: {global_connected}\n"
-    f"📲 Contactabilidad Outbound: {outbound_contact_rate:.1f}%\n"
+    f"📲 Contact Rate Outbound Global: {outbound_contact_rate:.1f}%\n"
     f"🎯 Contact Rate: {contact_rate:.1f}%\n"
     f"🕒 Talk Time: {horas_globales} hrs\n"
 )
