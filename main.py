@@ -60,54 +60,97 @@ print(
 )
 
 # ====================================
-# EXTENSIONES
+# EXTENSIONES (TODAS LAS PAGINAS)
 # ====================================
-
-response = requests.get(
-    "https://platform.ringcentral.com/restapi/v1.0/account/~/extension",
-    headers={
-        "Authorization": f"Bearer {access_token}"
-    }
-)
-
-response.raise_for_status()
-
-extensions = response.json().get(
-    "records",
-    []
-)
 
 ext_info = {}
 
-for ext in extensions:
+page = 1
 
-    ext_id = str(ext["id"])
+while True:
 
-    nombre = (
-        ext.get("name")
-        or ext.get("contact", {}).get("firstName", "")
-        or f"Extension {ext_id}"
+    response = requests.get(
+        "https://platform.ringcentral.com/restapi/v1.0/account/~/extension",
+        headers={
+            "Authorization": f"Bearer {access_token}"
+        },
+        params={
+            "perPage": 1000,
+            "page": page
+        }
     )
 
-    departamento = (
-        ext.get("contact", {})
-        .get("department")
-        or "Sin departamento"
+    response.raise_for_status()
+
+    data = response.json()
+
+    extensions = data.get(
+        "records",
+        []
     )
 
-    sitio = (
-        ext.get("site", {})
-        .get("name")
-        or "Sin sitio"
+    if not extensions:
+        break
+
+    for ext in extensions:
+
+        ext_id = str(ext["id"])
+
+        contact = ext.get(
+            "contact",
+            {}
+        )
+
+        first_name = contact.get(
+            "firstName",
+            ""
+        ).strip()
+
+        last_name = contact.get(
+            "lastName",
+            ""
+        ).strip()
+
+        nombre_completo = (
+            f"{first_name} {last_name}"
+        ).strip()
+
+        if not nombre_completo:
+
+            nombre_completo = (
+                ext.get("name")
+                or f"Extension {ext_id}"
+            )
+
+        departamento = (
+            contact.get("department")
+            or "Sin departamento"
+        )
+
+        sitio = (
+            ext.get("site", {})
+            .get("name")
+            or "Sin sitio"
+        )
+
+        ext_info[ext_id] = {
+            "nombre": nombre_completo,
+            "departamento": departamento,
+            "sitio": sitio
+        }
+
+    print(
+        f"Pagina extensiones {page}: {len(extensions)}"
     )
 
-    ext_info[ext_id] = {
-        "nombre": nombre,
-        "departamento": departamento,
-        "sitio": sitio
-    }
+    if len(extensions) < 1000:
+        break
 
-print(f"Extensiones: {len(ext_info)}")
+    page += 1
+
+print(
+    f"Extensiones totales: {len(ext_info)}"
+)
 
 # ====================================
 # CALL LOG
@@ -271,7 +314,11 @@ for pos, (ext_id, datos) in enumerate(
         "nombre",
         ext_id
     )
-
+    if nombre == ext_id:
+    print(
+        f"NO SE ENCONTRO EXTENSION: {ext_id}"
+    )
+    
     departamento = usuario.get(
         "departamento",
         "Sin departamento"
