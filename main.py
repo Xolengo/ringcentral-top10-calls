@@ -70,11 +70,6 @@ while True:
     if not extensions:
         break
     for ext in extensions:
-        if ext.get("name") == "Susana Alcantara Duque":
-            import json
-            print("========== SUSANA ==========")
-            print(json.dumps(ext, indent=2))
-
         ext_id = str(ext["id"])
         contact = ext.get(
             "contact",
